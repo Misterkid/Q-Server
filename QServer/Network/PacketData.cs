@@ -3,14 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+/* Author: Eddy Meivogel
+ * Website: www.eddymeivogel.com
+ */
 namespace QServer.Network
-{/*
-    class PacketData
-    {
-
-    }
-  */
+{
     public struct PacketDatas
     {
         public const string PACKET_HEADER = "^";

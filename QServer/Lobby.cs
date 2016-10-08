@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
 using QServer.Network;
-
+/* Author: Eddy Meivogel
+ * Website: www.eddymeivogel.com
+ */
 namespace QServer
 {
     class Lobby
@@ -16,9 +17,6 @@ namespace QServer
         {
             clients = new List<Client>();
             gameRooms = new List<GameRoom>();
-
-            //Test
-
         }
         public void AddClient(Client visitor)
         {

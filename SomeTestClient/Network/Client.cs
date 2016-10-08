@@ -4,6 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Net;
 using System.Net.Sockets;
+/* Author: Eddy Meivogel
+ * Website: www.eddymeivogel.com
+ */
 namespace SomeTestClient.Network
 {
     public class Client

@@ -2,14 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-
+/* Author: Eddy Meivogel
+ * Website: www.eddymeivogel.com
+ */
 namespace SomeTestClient.Network
-{/*
-    class PacketData
-    {
-
-    }
-  */
+{
     public struct PacketDatas
     {
         public const string PACKET_HEADER = "^";

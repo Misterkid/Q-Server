@@ -6,9 +6,10 @@ using System.Threading.Tasks;
 using System.Net;
 using System.Net.Sockets;
 using System.Text.RegularExpressions;
-
 using System.Windows.Forms;
-
+/* Author: Eddy Meivogel
+ * Website: www.eddymeivogel.com
+ */
 /* Done
  * A lobby with chat
  * A base gameroom
