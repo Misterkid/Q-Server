@@ -25,10 +25,6 @@ namespace QServer
         }
         public void RemoveClient(Client visitor)
         {
-            for (int g = 0; g < gameRooms.Count; g++)
-            {
-                gameRooms[g].RemoveClient(visitor);
-            }
             if (visitor.isLoggedIn)
             {
                 List<Client> newClientList = new List<Client>();
@@ -93,10 +89,16 @@ namespace QServer
         }
         private void UpdateGameRooms(Client client = null)
         {
+            if(gameRooms.Count <= 0 )
+                return;//No game rooms... nothing to send!
+
             string gameRoomNames = "";
             for (int i = 0; i < gameRooms.Count; i++)
             {
-                gameRoomNames += gameRooms[i].gameRoomName + ",";
+                gameRoomNames += gameRooms[i].gameRoomName;
+
+                if (i != gameRooms.Count - 1)
+                    gameRoomNames += ",";
             }
             if(client != null)
             {
@@ -130,13 +132,19 @@ namespace QServer
         private void AddClientToGameRoom(Client client,GameRoom gameRoom)
         {
             client.recieved -= new Client.ClientRecievedHandler(client_recieved);
-            gameRoom.AddClient(client);
             client.Send(PacketDatas.PACKET_HEADER + PacketDatas.PACKET_SPLIT + PacketDatas.PACKET_GAME_SEL + PacketDatas.PACKET_SPLIT + "OK!");
-            
-            //RemoveClient(client);
+            gameRoom.AddClient(client);
+            RemoveClient(client);
         }
         private void CreateGameRoom(Client sender, String[] packetStrings)
         {
+
+            if (GetGameRoomByName(packetStrings[2]) != null || packetStrings[2].Length <= 2)
+            {
+                sender.Send(PacketDatas.PACKET_HEADER + PacketDatas.PACKET_SPLIT + PacketDatas.PACKET_ERROR + PacketDatas.PACKET_SPLIT + "There is already a gameroom with the same name or need more then 2 characters");
+                return;
+            }
+
             GameRoom gameRoom = new GameRoom(sender, this, packetStrings[2]);
             gameRooms.Add(gameRoom);
             sender.Send(PacketDatas.PACKET_HEADER + PacketDatas.PACKET_SPLIT + PacketDatas.PACKET_GAME_CREATE + PacketDatas.PACKET_SPLIT + "OK!");

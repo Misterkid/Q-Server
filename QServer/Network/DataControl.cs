@@ -150,11 +150,6 @@ namespace QServer.Network//NAME SPACEEEEEEEEEEEEEEE!!!
             //Database connection for logging in.
             //Detect sql injections
             //Detect Invalid character
-
-            //My failed attempt :
-            //Regex objAlphaPattern = new Regex(@"^[a-zA-Z0-9_@.-]*$");
-            //bool userCorrect = objAlphaPattern.IsMatch(packetStrings[2]);
-            //bool passCorrect = objAlphaPattern.IsMatch(packetStrings[3]);
             //Both on true. :D always correct.
             bool userCorrect = true;//Correct
             bool passCorrect = true;//correct

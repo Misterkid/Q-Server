@@ -24,8 +24,8 @@ namespace QServer
 
         public void AddClient(Client visitor)
         {
-            visitor.recieved += new Client.ClientRecievedHandler(client_recieved);
             clients.Add(visitor);
+            visitor.recieved += new Client.ClientRecievedHandler(client_recieved);
         }
         public void RemoveClient(Client visitor)
         {
@@ -48,7 +48,7 @@ namespace QServer
         private void client_recieved(Client sender, byte[] data)
         {
             string packetString = Encoding.Default.GetString(data);
-            Console.WriteLine("Recieved data:{0} at Time:{1} Length:{2}", packetString, DateTime.Now, packetString.Length);
+            Console.WriteLine("[Gameroom {3}] Recieved data:{0} at Time:{1} Length:{2}", packetString, DateTime.Now, packetString.Length,gameRoomName);
 
             string[] packetStrings = packetString.Split(PacketDatas.PACKET_SPLIT[0]);
             if (packetStrings[0] == PacketDatas.PACKET_HEADER)
@@ -68,7 +68,7 @@ namespace QServer
                         DoStartGame(sender, packetStrings);
                         break;
                     default:
-                        Console.WriteLine("Error wrong packet! {0}", packetStrings[1]);
+                        Console.WriteLine("[Gameroom {1}] Error wrong packet! {0}", packetStrings[1],gameRoomName);
                         //sender.Close();
                         break;
                 }
@@ -119,6 +119,7 @@ namespace QServer
                     packetStrings[2] += packetStrings[i];
                 }
             }
+            Console.WriteLine(clients.Count);
             for (int c = 0; c < clients.Count; c++)
             {
                 clients[c].Send(PacketDatas.PACKET_HEADER + PacketDatas.PACKET_SPLIT + PacketDatas.PACKET_CHAT + PacketDatas.PACKET_SPLIT + sender.userName + ": " + packetStrings[2]);
