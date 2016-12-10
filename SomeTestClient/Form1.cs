@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using SomeTestClient.Network;
+using QServer.Network;
 
 namespace SomeTestClient
 {
@@ -44,6 +45,7 @@ namespace SomeTestClient
         void Client_recieve(System.Net.Sockets.Socket sender, byte[] data)
         {
             string packetString = Encoding.Default.GetString(data);
+            packetString = QEncryption.Decrypt(packetString);
             Console.WriteLine("Recieved data:{0} at Time:{1} Length:{2}", packetString, DateTime.Now, packetString.Length);
             string[] packetStrings = packetString.Split(PacketDatas.PACKET_SPLIT[0]);
             if (packetStrings[0] == PacketDatas.PACKET_HEADER)
@@ -80,6 +82,13 @@ namespace SomeTestClient
                             }
                         }
                         break;
+                        /*
+                    case PacketDatas.PACKET_GAME_START:
+
+                        break;
+                    case PacketDatas.PACKET_GAME_STOP:
+
+                        break;*/
                     //Get error
                     case PacketDatas.PACKET_ERROR:
                         HandleError(packetStrings[2] + " : " + packetString);
@@ -121,12 +130,16 @@ namespace SomeTestClient
 
         private void createButton_Click(object sender, EventArgs e)
         {
-            client.Send(PacketDatas.PACKET_HEADER + PacketDatas.PACKET_SPLIT + PacketDatas.PACKET_GAME_CREATE + PacketDatas.PACKET_SPLIT + roomTextBox.Text);
+            //client.Send(PacketDatas.PACKET_HEADER + PacketDatas.PACKET_SPLIT + PacketDatas.PACKET_GAME_CREATE + PacketDatas.PACKET_SPLIT + roomTextBox.Text);
+            String Package = PacketDatas.PACKET_HEADER + PacketDatas.PACKET_SPLIT + PacketDatas.PACKET_GAME_CREATE + PacketDatas.PACKET_SPLIT + roomTextBox.Text;
+            client.Send(Package);
         }
 
         private void roomListBox_SelectedIndexChanged(object sender, EventArgs e)
         {
-            client.Send(PacketDatas.PACKET_HEADER + PacketDatas.PACKET_SPLIT + PacketDatas.PACKET_GAME_SEL + PacketDatas.PACKET_SPLIT + roomListBox.SelectedItem.ToString());
+            //client.Send(PacketDatas.PACKET_HEADER + PacketDatas.PACKET_SPLIT + PacketDatas.PACKET_GAME_SEL + PacketDatas.PACKET_SPLIT + roomListBox.SelectedItem.ToString());
+            String Package = PacketDatas.PACKET_HEADER + PacketDatas.PACKET_SPLIT + PacketDatas.PACKET_GAME_SEL + PacketDatas.PACKET_SPLIT + roomListBox.SelectedItem.ToString();
+            client.Send(Package);
         }
 
         private void chatTextBox_KeyDown(object sender, KeyEventArgs e)
@@ -134,12 +147,25 @@ namespace SomeTestClient
             if (e.KeyCode == Keys.Enter && chatTextBox.Text != "")
             {
                 //Chat packet
-                client.Send(PacketDatas.PACKET_HEADER + PacketDatas.PACKET_SPLIT +
-                    PacketDatas.PACKET_CHAT + PacketDatas.PACKET_SPLIT +
-                    chatTextBox.Text
-                    );
+                //client.Send(PacketDatas.PACKET_HEADER + PacketDatas.PACKET_SPLIT +PacketDatas.PACKET_CHAT + PacketDatas.PACKET_SPLIT +chatTextBox.Text);
+                String Package = PacketDatas.PACKET_HEADER + PacketDatas.PACKET_SPLIT + PacketDatas.PACKET_CHAT + PacketDatas.PACKET_SPLIT + chatTextBox.Text;
+                client.Send(Package);
+                
                 chatTextBox.Text = "";
             }
+        }
+
+        private void startGameButton_Click(object sender, EventArgs e)
+        {
+            //startGameButton.
+            String Package = PacketDatas.PACKET_HEADER + PacketDatas.PACKET_SPLIT + PacketDatas.PACKET_GAME_START;
+            client.Send(Package);
+        }
+
+        private void stopGameButton_Click(object sender, EventArgs e)
+        {
+            String Package = PacketDatas.PACKET_HEADER + PacketDatas.PACKET_SPLIT + PacketDatas.PACKET_GAME_STOP;
+            client.Send(Package);
         }
     }
 }

@@ -110,6 +110,8 @@ namespace QServer.Network//NAME SPACEEEEEEEEEEEEEEE!!!
         {
             string packetString = Encoding.Default.GetString(data);//The packet
             Console.WriteLine("Recieved data:{0} at Time:{1} Length:{2}", packetString, DateTime.Now, packetString.Length);
+            packetString = QEncryption.Decrypt(packetString);
+            Console.WriteLine("Recieved data:{0} at Time:{1} Length:{2}", packetString, DateTime.Now, packetString.Length);
             //Split the packet by our split character.
             string[] packetStrings = packetString.Split(PacketDatas.PACKET_SPLIT[0]);
 

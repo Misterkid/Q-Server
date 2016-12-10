@@ -7,22 +7,14 @@ using QServer.Network;
 
 namespace QServer
 {
-    class GameRoom
+    class Game
     {
-        private List<Client> clients = new List<Client>();
-        private Client gameroomOwner;
-        private bool gameStarted = false;
-        private Lobby lobby;
-        private Game game;
-        public string gameRoomName = "";
-        public GameRoom(Client owner,Lobby lLobby,string name = "null")
+        public List<Client> clients = new List<Client>();
+        private GameRoom gameRoom;
+        public Game(GameRoom gameRoom)
         {
-            lobby = lLobby;
-            gameroomOwner = owner;
-            gameRoomName = name;
-            Console.WriteLine("Created Gameroom {0}", name);
+            this.gameRoom = gameRoom;
         }
-
         public void AddClient(Client visitor)
         {
             clients.Add(visitor);
@@ -52,8 +44,7 @@ namespace QServer
             string packetString = Encoding.Default.GetString(data);
             Console.WriteLine("Recieved encrypted data:{0} at Time:{1} Length:{2}", packetString, DateTime.Now, packetString.Length);
             packetString = QEncryption.Decrypt(packetString);
-            Console.WriteLine("[Gameroom {3}] Recieved data:{0} at Time:{1} Length:{2}", packetString, DateTime.Now, packetString.Length,gameRoomName);
-
+            Console.WriteLine("[Gameroom InGame {3}] Recieved data:{0} at Time:{1} Length:{2}", packetString, DateTime.Now, packetString.Length, gameRoom.gameRoomName);
             string[] packetStrings = packetString.Split(PacketDatas.PACKET_SPLIT[0]);
             if (packetStrings[0] == PacketDatas.PACKET_HEADER)
             {
@@ -67,12 +58,11 @@ namespace QServer
                     case PacketDatas.PACKET_CHAT:
                         DoChat(sender, packetStrings);
                         break;
-
-                    case PacketDatas.PACKET_GAME_START:
-                        DoStartGame(sender, packetStrings);
+                    case PacketDatas.PACKET_GAME_STOP:
+                        GameStop(sender, packetStrings);
                         break;
                     default:
-                        Console.WriteLine("[Gameroom {1}] Error wrong packet! {0}", packetStrings[1],gameRoomName);
+                        Console.WriteLine("[Gameroom InGame {1}] Error wrong packet! {0}", packetStrings[1], gameRoom.gameRoomName);
                         //sender.Close();
                         break;
                 }
@@ -83,21 +73,13 @@ namespace QServer
                 return;
             }
         }
-        private void DoStartGame(Client sender, String[] packetStrings)
+        private void GameStop(Client sender, String[] packetStrings)
         {
-            if (!gameStarted)
+            for(int i = 0; i < clients.Count; i++)
             {
-                gameStarted = true;
-                game = new Game(this);
-                for(int i = 0; i < clients.Count; i++)
-                {
-                    game.AddClient(clients[i]);
-                    //RemoveClient(clients[i]);
-
-                }
-                Console.WriteLine("Game Started");
-                RemoveAllClients();
+                gameRoom.AddClient(clients[i]);
             }
+            RemoveAllClients();
         }
         private void RemoveAllClients()
         {
@@ -105,28 +87,6 @@ namespace QServer
             {
                 RemoveClient(clients[i]);
                 i--;
-            }
-        }
-        private void DoDestroyRoom(Client sender, String[] packetStrings)
-        {
-            Console.WriteLine("Game Destroyed");
-            for (int i = 0; i < clients.Count; i++)
-            {
-                lobby.AddClient(clients[i]);
-                this.RemoveClient(clients[i]);
-                clients[i].recieved -= client_recieved;
-            }
-            lobby.AddClient(gameroomOwner);
-            gameroomOwner.recieved -= client_recieved;
-
-            lobby.DestroyGameRoom(this);
-        }
-        private void DoEndGame(Client sender, String[] packetStrings)
-        {
-            if (gameStarted)
-            {
-                gameStarted = false;
-                Console.WriteLine("Game Ended");
             }
         }
         private void DoChat(Client sender, String[] packetStrings)

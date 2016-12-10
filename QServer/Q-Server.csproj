@@ -43,6 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Game.cs" />
     <Compile Include="GameRoom.cs" />
     <Compile Include="Lobby.cs" />
     <Compile Include="Main.cs">
@@ -52,9 +53,11 @@
       <DependentUpon>Main.cs</DependentUpon>
     </Compile>
     <Compile Include="Network\Client.cs" />
+    <Compile Include="Network\Cryptography.cs" />
     <Compile Include="Network\DataControl.cs" />
     <Compile Include="Network\Listener.cs" />
     <Compile Include="Network\PacketData.cs" />
+    <Compile Include="Network\QEncryption.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

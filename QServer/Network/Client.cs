@@ -71,6 +71,7 @@ namespace QServer.Network
         public void Send(string dataToSend)
         {
             //We us UTF8 characterss so lets convert the bytes into utf8 string!
+            dataToSend = QEncryption.Encrypt(dataToSend);
             byte[] dataBytes = Encoding.UTF8.GetBytes(dataToSend);
             //And then send it to our client.
             sSocket.Send(dataBytes,SocketFlags.None);

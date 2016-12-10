@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Net;
 using System.Net.Sockets;
+using QServer.Network;
 /* Author: Eddy Meivogel
  * Website: www.eddymeivogel.com
  */
@@ -51,6 +52,7 @@ namespace SomeTestClient.Network
         }
         public void Send(string dataToSend)
         {
+            dataToSend = QEncryption.Encrypt(dataToSend);
             byte[] dataBytes = Encoding.UTF8.GetBytes(dataToSend);
             socket.Send(dataBytes, SocketFlags.None);
         }

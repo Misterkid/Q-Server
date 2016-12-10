@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 /* Author: Eddy Meivogel
  * Website: www.eddymeivogel.com
  */
@@ -18,6 +17,7 @@ namespace QServer.Network
         public const string PACKET_GAME_CREATE = "GaCreate";
         public const string PACKET_GAME_SEL = "GaSel";
         public const string PACKET_GAME_START = "GaStart";
+        public const string PACKET_GAME_STOP = "GaStop";
         public const string PACKET_GAME_DESTROY = "GaKill";
         public const string PACKET_GET_GAME_ROOM = "GaGetRoom";
     }

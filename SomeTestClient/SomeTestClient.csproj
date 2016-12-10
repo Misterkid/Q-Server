@@ -43,6 +43,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\QServer\Network\Cryptography.cs">
+      <Link>Network\Cryptography.cs</Link>
+    </Compile>
+    <Compile Include="..\QServer\Network\PacketData.cs">
+      <Link>Network\PacketData.cs</Link>
+    </Compile>
+    <Compile Include="..\QServer\Network\QEncryption.cs">
+      <Link>Network\QEncryption.cs</Link>
+    </Compile>
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -50,7 +59,6 @@
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
     <Compile Include="Network\Client.cs" />
-    <Compile Include="Network\PacketData.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Form1.resx">

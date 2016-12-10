@@ -25,6 +25,7 @@ namespace QServer
         }
         public void RemoveClient(Client visitor)
         {
+            visitor.recieved -= new Client.ClientRecievedHandler(client_recieved);
             if (visitor.isLoggedIn)
             {
                 List<Client> newClientList = new List<Client>();
@@ -44,6 +45,9 @@ namespace QServer
         private void client_recieved(Client sender, byte[] data)
         {
             string packetString = Encoding.Default.GetString(data);
+            Console.WriteLine("Recieved encrypted data:{0} at Time:{1} Length:{2}", packetString, DateTime.Now, packetString.Length);
+            packetString = QEncryption.Decrypt(packetString);
+
             Console.WriteLine("Recieved data:{0} at Time:{1} Length:{2}", packetString, DateTime.Now, packetString.Length);
 
             string[] packetStrings = packetString.Split(PacketDatas.PACKET_SPLIT[0]);
@@ -116,7 +120,9 @@ namespace QServer
             //AddClientToGameRoom
             GameRoom gameRoom = GetGameRoomByName(packetStrings[2]);
             if (gameRoom != null)
+            {
                 AddClientToGameRoom(sender, gameRoom);
+            }
         }
         private GameRoom GetGameRoomByName(string name)
         {
@@ -131,7 +137,6 @@ namespace QServer
         }
         private void AddClientToGameRoom(Client client,GameRoom gameRoom)
         {
-            client.recieved -= new Client.ClientRecievedHandler(client_recieved);
             client.Send(PacketDatas.PACKET_HEADER + PacketDatas.PACKET_SPLIT + PacketDatas.PACKET_GAME_SEL + PacketDatas.PACKET_SPLIT + "OK!");
             gameRoom.AddClient(client);
             RemoveClient(client);
