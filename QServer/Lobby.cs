@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Threading;
 using QServer.Network;
 /* Author: Eddy Meivogel
  * Website: www.eddymeivogel.com
@@ -20,44 +21,26 @@ namespace QServer
         }
         public void AddClient(Client visitor)
         {
-            visitor.recieved += new Client.ClientRecievedHandler(client_recieved);
+            visitor.received += new Client.ClientReceivedHandler(client_received);
+            visitor.disconnected += new Client.ClientDisconnectedHandler(visitor_disconnected);
             clients.Add(visitor);
+        }
+
+        void visitor_disconnected(Client sender)
+        {
+            RemoveClient(sender);
+            sender.disconnected -= new Client.ClientDisconnectedHandler(visitor_disconnected);
         }
         public void RemoveClient(Client visitor)
         {
-            visitor.recieved -= new Client.ClientRecievedHandler(client_recieved);
-            if (visitor.isLoggedIn)
-            {
-                List<Client> newClientList = new List<Client>();
-                for (int i = 0; i < clients.Count; i++)
-                {
-                    if (clients[i] != visitor)
-                    {
-                        newClientList.Add(clients[i]);
-                    }
-                }
-                clients.Clear();
-                clients = null;
-                clients = newClientList;
-            }
+            visitor.received -= new Client.ClientReceivedHandler(client_received);
+            clients.Remove(visitor);
             visitor = null;
         }
-        private void client_recieved(Client sender, byte[] data)
+        private void client_received(Client sender, string[] packetStrings)
         {
-            string packetString = Encoding.Default.GetString(data);
-            Console.WriteLine("Recieved encrypted data:{0} at Time:{1} Length:{2}", packetString, DateTime.Now, packetString.Length);
-            packetString = QEncryption.Decrypt(packetString);
-
-            Console.WriteLine("Recieved data:{0} at Time:{1} Length:{2}", packetString, DateTime.Now, packetString.Length);
-
-            string[] packetStrings = packetString.Split(PacketDatas.PACKET_SPLIT[0]);
-            if (packetStrings[0] == PacketDatas.PACKET_HEADER)
-            {
-                if (packetStrings[1] != PacketDatas.LOGIN_PACKET && sender.isLoggedIn == false)
-                {
-                    sender.Close();
-                    return;
-                }
+            new Thread(delegate() 
+            { 
                 switch (packetStrings[1])
                 {
                     case PacketDatas.PACKET_CHAT:
@@ -79,11 +62,22 @@ namespace QServer
                         sender.Close();
                         break;
                 }
-            }
-            else
+            }).Start();
+        }
+        public void DCAll()
+        {
+            for(int i = 0; i < gameRooms.Count; i++)
             {
-                sender.Close();
-                return;
+                gameRooms[i].DCAll();
+            }
+            RemoveAllClients();
+        }
+        private void RemoveAllClients()
+        {
+            for (int i = 0; i < clients.Count; i++)
+            {
+                RemoveClient(clients[i]);
+                i--;
             }
         }
         private void GameRoomsUpdate(Client sender, String[] packetStrings)
@@ -179,9 +173,11 @@ namespace QServer
                     packetStrings[2] += packetStrings[i];
                 }
             }
+            string chatPackage = PacketDatas.PACKET_HEADER + PacketDatas.PACKET_SPLIT + PacketDatas.PACKET_CHAT + PacketDatas.PACKET_SPLIT + sender.userName + ": " + packetStrings[2];
+            chatPackage = QEncryption.Encrypt(chatPackage);
             for (int c = 0; c < clients.Count; c++)
             {
-                clients[c].Send(PacketDatas.PACKET_HEADER + PacketDatas.PACKET_SPLIT + PacketDatas.PACKET_CHAT + PacketDatas.PACKET_SPLIT + sender.userName + ": " + packetStrings[2]);
+                clients[c].SendWEncrypt(chatPackage);
             }
         }
     }

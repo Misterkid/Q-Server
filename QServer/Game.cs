@@ -18,59 +18,35 @@ namespace QServer
         public void AddClient(Client visitor)
         {
             clients.Add(visitor);
-            visitor.recieved += new Client.ClientRecievedHandler(client_recieved);
+            visitor.received += new Client.ClientReceivedHandler(client_received);
+            visitor.disconnected += new Client.ClientDisconnectedHandler(visitor_disconnected);
+        }
+
+        void visitor_disconnected(Client sender)
+        {
+            RemoveClient(sender);
+            sender.disconnected -= new Client.ClientDisconnectedHandler(visitor_disconnected);
         }
         public void RemoveClient(Client visitor)
         {
-            visitor.recieved -= new Client.ClientRecievedHandler(client_recieved);
-            if (visitor.isLoggedIn)
-            {
-                List<Client> newClientList = new List<Client>();
-                for (int i = 0; i < clients.Count; i++)
-                {
-                    if (clients[i] != visitor)
-                    {
-                        newClientList.Add(clients[i]);
-                    }
-                }
-                clients.Clear();
-                clients = null;
-                clients = newClientList;
-            }
+            visitor.received -= new Client.ClientReceivedHandler(client_received);
+            clients.Remove(visitor);
             visitor = null;
         }
-        private void client_recieved(Client sender, byte[] data)
+        private void client_received(Client sender, string[] packetStrings)
         {
-            string packetString = Encoding.Default.GetString(data);
-            Console.WriteLine("Recieved encrypted data:{0} at Time:{1} Length:{2}", packetString, DateTime.Now, packetString.Length);
-            packetString = QEncryption.Decrypt(packetString);
-            Console.WriteLine("[Gameroom InGame {3}] Recieved data:{0} at Time:{1} Length:{2}", packetString, DateTime.Now, packetString.Length, gameRoom.gameRoomName);
-            string[] packetStrings = packetString.Split(PacketDatas.PACKET_SPLIT[0]);
-            if (packetStrings[0] == PacketDatas.PACKET_HEADER)
+            switch (packetStrings[1])
             {
-                if (packetStrings[1] != PacketDatas.LOGIN_PACKET && sender.isLoggedIn == false)
-                {
-                    sender.Close();
-                    return;
-                }
-                switch (packetStrings[1])
-                {
-                    case PacketDatas.PACKET_CHAT:
-                        DoChat(sender, packetStrings);
-                        break;
-                    case PacketDatas.PACKET_GAME_STOP:
-                        GameStop(sender, packetStrings);
-                        break;
-                    default:
-                        Console.WriteLine("[Gameroom InGame {1}] Error wrong packet! {0}", packetStrings[1], gameRoom.gameRoomName);
-                        //sender.Close();
-                        break;
-                }
-            }
-            else
-            {
-                sender.Close();
-                return;
+                case PacketDatas.PACKET_CHAT:
+                    DoChat(sender, packetStrings);
+                    break;
+                case PacketDatas.PACKET_GAME_STOP:
+                    GameStop(sender, packetStrings);
+                    break;
+                default:
+                    Console.WriteLine("[Gameroom InGame {1}] Error wrong packet! {0}", packetStrings[1], gameRoom.gameRoomName);
+                    //sender.Close();
+                    break;
             }
         }
         private void GameStop(Client sender, String[] packetStrings)
@@ -79,6 +55,10 @@ namespace QServer
             {
                 gameRoom.AddClient(clients[i]);
             }
+            RemoveAllClients();
+        }
+        public void DCAll()
+        {
             RemoveAllClients();
         }
         private void RemoveAllClients()

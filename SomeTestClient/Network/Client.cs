@@ -18,9 +18,9 @@ namespace SomeTestClient.Network
         {
             socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             socket.Connect(ipAddr, port);
-            socket.BeginReceive(new byte[] { 0 }, 0, 0, 0, recieveCallback, null);
+            socket.BeginReceive(new byte[] { 0 }, 0, 0, 0, receiveCallback, null);
         }
-        private void recieveCallback(IAsyncResult ar)
+        private void receiveCallback(IAsyncResult ar)
         {
             try
             {
@@ -38,15 +38,24 @@ namespace SomeTestClient.Network
                 {
                     Array.Resize<byte>(ref buffer, recCount);
                 }
-                if (recieve != null)
+                if (receive != null)
                 {
-                    recieve(socket, buffer);
+                    string packetString = Encoding.Default.GetString(buffer);
+                    packetString = QEncryption.Decrypt(packetString);
+                    Console.WriteLine("received data:{0} at Time:{1} Length:{2}", packetString, DateTime.Now, packetString.Length);
+                    string[] packetStrings = packetString.Split(PacketDatas.PACKET_SPLIT[0]);
+                    if (packetStrings[0] != PacketDatas.PACKET_HEADER)//Is the packet header correct?
+                    {
+                        Close();
+                        return;
+                    }
+                    receive(this, packetStrings);
                 }
-                socket.BeginReceive(new byte[] { 0 }, 0, 0, 0, recieveCallback, null);
+                socket.BeginReceive(new byte[] { 0 }, 0, 0, 0, receiveCallback, null);
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error Recieving:{0} StackTrace:{1} ", ex.Message, ex.StackTrace);
+                Console.WriteLine("Error receiving:{0} StackTrace:{1} ", ex.Message, ex.StackTrace);
                 Close();
             }
         }
@@ -63,7 +72,7 @@ namespace SomeTestClient.Network
                 socket.Close();
             }
         }
-        public delegate void EventRecieve(Socket sender, byte[] data);
-        public event EventRecieve recieve;
+        public delegate void Eventreceive(Client sender, string[] data);
+        public event Eventreceive receive;
     }
 }

@@ -12,7 +12,7 @@ namespace QServer.Network
     {
         #region Settings
 
-        private static int _iterations = 9001;
+        private static int _iterations = 256;
         private static int _keySize = 256;
 
         private static string _hash = "SHA1";
@@ -65,42 +65,49 @@ namespace QServer.Network
         }
         public static string Decrypt<T>(string value, string password) where T : SymmetricAlgorithm, new()
         {
-            byte[] vectorBytes = ASCIIEncoding.UTF8.GetBytes(_vector);
-            byte[] saltBytes = ASCIIEncoding.UTF8.GetBytes(_salt);
-            byte[] valueBytes = Convert.FromBase64String(value);
-
-            byte[] decrypted;
-            int decryptedByteCount = 0;
-
-            using (T cipher = new T())
+            try
             {
-                PasswordDeriveBytes _passwordBytes = new PasswordDeriveBytes(password, saltBytes, _hash, _iterations);
-                byte[] keyBytes = _passwordBytes.GetBytes(_keySize / 8);
+                byte[] vectorBytes = ASCIIEncoding.UTF8.GetBytes(_vector);
+                byte[] saltBytes = ASCIIEncoding.UTF8.GetBytes(_salt);
+                byte[] valueBytes = Convert.FromBase64String(value);
 
-                cipher.Mode = CipherMode.CBC;
+                byte[] decrypted;
+                int decryptedByteCount = 0;
 
-                try
+                using (T cipher = new T())
                 {
-                    using (ICryptoTransform decryptor = cipher.CreateDecryptor(keyBytes, vectorBytes))
+                    PasswordDeriveBytes _passwordBytes = new PasswordDeriveBytes(password, saltBytes, _hash, _iterations);
+                    byte[] keyBytes = _passwordBytes.GetBytes(_keySize / 8);
+
+                    cipher.Mode = CipherMode.CBC;
+
+                    try
                     {
-                        using (MemoryStream from = new MemoryStream(valueBytes))
+                        using (ICryptoTransform decryptor = cipher.CreateDecryptor(keyBytes, vectorBytes))
                         {
-                            using (CryptoStream reader = new CryptoStream(from, decryptor, CryptoStreamMode.Read))
+                            using (MemoryStream from = new MemoryStream(valueBytes))
                             {
-                                decrypted = new byte[valueBytes.Length];
-                                decryptedByteCount = reader.Read(decrypted, 0, decrypted.Length);
+                                using (CryptoStream reader = new CryptoStream(from, decryptor, CryptoStreamMode.Read))
+                                {
+                                    decrypted = new byte[valueBytes.Length];
+                                    decryptedByteCount = reader.Read(decrypted, 0, decrypted.Length);
+                                }
                             }
                         }
                     }
-                }
-                catch (Exception ex)
-                {
-                    return String.Empty;
-                }
+                    catch (Exception ex)
+                    {
+                        return String.Empty;
+                    }
 
-                cipher.Clear();
+                    cipher.Clear();
+                }
+                return Encoding.UTF8.GetString(decrypted, 0, decryptedByteCount);
             }
-            return Encoding.UTF8.GetString(decrypted, 0, decryptedByteCount);
+            catch(Exception e)
+            {
+                return "NULL";
+            }
         }
     }
 }

@@ -8,6 +8,7 @@ using System.Text;
 using System.Windows.Forms;
 using SomeTestClient.Network;
 using QServer.Network;
+using System.Threading;
 
 namespace SomeTestClient
 {
@@ -19,6 +20,7 @@ namespace SomeTestClient
         {
             InitializeComponent();
             //client = new Client();
+            TestSpam(1);
 
         }
         private void loginButton_Click(object sender, EventArgs e)
@@ -28,91 +30,104 @@ namespace SomeTestClient
             client.InitSocket("127.0.0.1", 9650);
             //client.InitSocket("141.252.230.10", 9650);
             
-            client.recieve += Client_recieve;
+            client.receive += Client_receive;
             //Login packet
             
             client.Send(PacketDatas.PACKET_HEADER + PacketDatas.PACKET_SPLIT +
-                PacketDatas.LOGIN_PACKET + PacketDatas.PACKET_SPLIT +
+                PacketDatas.PACKET_LOGIN + PacketDatas.PACKET_SPLIT +
                 userTextBox.Text + PacketDatas.PACKET_SPLIT +
                 passTextBox.Text
                 );
+        }
+        private void spamButton_Click(object sender, EventArgs e)
+        {
+            TestSpam(50);
+        }
+        private void TestSpam(int count)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                client = new Client();
+                client.InitSocket("127.0.0.1", 9650);
+                //client.InitSocket("141.252.230.10", 9650);
 
+                client.receive += Client_receive;
+                //Login packet
+
+                client.Send(PacketDatas.PACKET_HEADER + PacketDatas.PACKET_SPLIT +
+                    PacketDatas.PACKET_LOGIN + PacketDatas.PACKET_SPLIT +
+                    "spam" + i + PacketDatas.PACKET_SPLIT +
+                    "pass"
+                    );
+                Thread.Sleep(50);
+            }
         }
         void Reset()
         {
             roomListBox.Items.Clear();
         }
-        void Client_recieve(System.Net.Sockets.Socket sender, byte[] data)
+        void Client_receive(Client sender, string[] packetStrings)
         {
-            string packetString = Encoding.Default.GetString(data);
-            packetString = QEncryption.Decrypt(packetString);
-            Console.WriteLine("Recieved data:{0} at Time:{1} Length:{2}", packetString, DateTime.Now, packetString.Length);
-            string[] packetStrings = packetString.Split(PacketDatas.PACKET_SPLIT[0]);
-            if (packetStrings[0] == PacketDatas.PACKET_HEADER)
+            switch (packetStrings[1])
             {
-                switch (packetStrings[1])
-                {
-                    case PacketDatas.LOGIN_PACKET:
-                        isLoggedIn = true;
-                        labelLoggedIn.Text = "Logged in";
-                        client.Send(PacketDatas.PACKET_HEADER + PacketDatas.PACKET_SPLIT + PacketDatas.PACKET_GET_GAME_ROOM);
-                        break;
-                    case PacketDatas.PACKET_CHAT:
-                        chatRichTextBox.AppendText("Chat: " + packetStrings[2] + "\n");
-                        break;
-                    case PacketDatas.PACKET_GET_GAME_ROOM:
-                        string[] rooms = packetStrings[2].Split(',');
-                        for (int r = 0; r < rooms.Length; r ++ )
+                case PacketDatas.PACKET_LOGIN:
+                    isLoggedIn = true;
+                    labelLoggedIn.Text = "Logged in";
+                    client.Send(PacketDatas.PACKET_HEADER + PacketDatas.PACKET_SPLIT + PacketDatas.PACKET_GET_GAME_ROOM);
+                    break;
+                case PacketDatas.PACKET_CHAT:
+                    chatRichTextBox.AppendText("Chat: " + packetStrings[2] + "\n");
+                    break;
+                case PacketDatas.PACKET_GET_GAME_ROOM:
+                    string[] rooms = packetStrings[2].Split(',');
+                    for (int r = 0; r < rooms.Length; r ++ )
+                    {
+                        if (rooms[r] != "" || rooms[r] != string.Empty)
                         {
-                            if (rooms[r] != "" || rooms[r] != string.Empty)
+                            for (int i = 0; i < roomListBox.Items.Count; i++)
                             {
-                                for (int i = 0; i < roomListBox.Items.Count; i++)
+                                if (roomListBox.Items[i].ToString() == rooms[r])
                                 {
-                                    if (roomListBox.Items[i] == rooms[r])
-                                    {
-                                        HandleError(rooms[r] + " already in the list");
-                                        return;
-                                    }
+                                    HandleError(rooms[r] + " already in the list");
+                                    return;
                                 }
-                                roomListBox.Items.Add(rooms[r]);
                             }
-                            else
-                            {
-                                HandleError(packetStrings[2]);
-                            }
+                            roomListBox.Items.Add(rooms[r]);
                         }
-                        break;
-                        /*
-                    case PacketDatas.PACKET_GAME_START:
+                        else
+                        {
+                            HandleError(packetStrings[2]);
+                        }
+                    }
+                    break;
+                case PacketDatas.PACKET_FORCE_DC:
+                    Application.Exit();
+                    break;
+                    /*
+                case PacketDatas.PACKET_GAME_START:
 
-                        break;
-                    case PacketDatas.PACKET_GAME_STOP:
+                    break;
+                case PacketDatas.PACKET_GAME_STOP:
 
-                        break;*/
-                    //Get error
-                    case PacketDatas.PACKET_ERROR:
-                        HandleError(packetStrings[2] + " : " + packetString);
-                        break;
-                    default:
-                        unusedPacketsRichTextBox.AppendText("Unhandled: " + packetString + "\n");
-                        break;
-                }
-            }
-            else
-            {
-                HandleError("Not packet header");
-                return;
+                    break;*/
+                //Get error
+                case PacketDatas.PACKET_ERROR:
+                    HandleError(packetStrings[2] + " : " + packetStrings);
+                    break;
+                default:
+                    unusedPacketsRichTextBox.AppendText("Unhandled: " + packetStrings + "\n");
+                    break;
             }
         }
         private void HandleError(string errorText)
         {
             /*
-            client.recieve -= Client_recieve;
+            client.receive -= Client_receive;
             client.Close();
             client = null;
             MessageBox.Show(errorText + "\nYou have been disconnected!", "Whoops something went wrong");
              */
-            MessageBox.Show(errorText, "Whoops something went wrong");
+            //MessageBox.Show(errorText, "Whoops something went wrong");
             unusedPacketsRichTextBox.AppendText("Error: " + errorText + "\n");
         }
         private void messageButton_Click(object sender, EventArgs e)
@@ -130,14 +145,12 @@ namespace SomeTestClient
 
         private void createButton_Click(object sender, EventArgs e)
         {
-            //client.Send(PacketDatas.PACKET_HEADER + PacketDatas.PACKET_SPLIT + PacketDatas.PACKET_GAME_CREATE + PacketDatas.PACKET_SPLIT + roomTextBox.Text);
             String Package = PacketDatas.PACKET_HEADER + PacketDatas.PACKET_SPLIT + PacketDatas.PACKET_GAME_CREATE + PacketDatas.PACKET_SPLIT + roomTextBox.Text;
             client.Send(Package);
         }
 
         private void roomListBox_SelectedIndexChanged(object sender, EventArgs e)
         {
-            //client.Send(PacketDatas.PACKET_HEADER + PacketDatas.PACKET_SPLIT + PacketDatas.PACKET_GAME_SEL + PacketDatas.PACKET_SPLIT + roomListBox.SelectedItem.ToString());
             String Package = PacketDatas.PACKET_HEADER + PacketDatas.PACKET_SPLIT + PacketDatas.PACKET_GAME_SEL + PacketDatas.PACKET_SPLIT + roomListBox.SelectedItem.ToString();
             client.Send(Package);
         }
@@ -146,8 +159,6 @@ namespace SomeTestClient
         {
             if (e.KeyCode == Keys.Enter && chatTextBox.Text != "")
             {
-                //Chat packet
-                //client.Send(PacketDatas.PACKET_HEADER + PacketDatas.PACKET_SPLIT +PacketDatas.PACKET_CHAT + PacketDatas.PACKET_SPLIT +chatTextBox.Text);
                 String Package = PacketDatas.PACKET_HEADER + PacketDatas.PACKET_SPLIT + PacketDatas.PACKET_CHAT + PacketDatas.PACKET_SPLIT + chatTextBox.Text;
                 client.Send(Package);
                 
@@ -167,5 +178,6 @@ namespace SomeTestClient
             String Package = PacketDatas.PACKET_HEADER + PacketDatas.PACKET_SPLIT + PacketDatas.PACKET_GAME_STOP;
             client.Send(Package);
         }
+
     }
 }

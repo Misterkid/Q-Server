@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 /* Author: Eddy Meivogel
  * Website: www.eddymeivogel.com
  */
@@ -37,10 +38,31 @@ namespace QServer.Network
             //Now we are going to listen.
             sSocket.Listen(0);
             //asynchronous accepting clients.
-            sSocket.BeginAccept(beginAcceptCallback,null);
+            StartListening();
+           // sSocket.BeginAccept(beginAcceptCallback,null);
             bListening = true;//We are ready and listening.
 
-            Console.WriteLine("Server is Listening on port {0}", nPort);
+            Eutils.WriteLine("Server is Listening on port {0}", nPort);
+        }
+        private void StartListening()
+        {
+            new Thread(delegate()
+            {
+                while (true)
+                {
+                    try
+                    {
+                        Socket socket = sSocket.Accept();
+                        socket.NoDelay = true;
+                        socketAccepted(socket);
+                    }
+                    catch (Exception e)
+                    {
+                        continue;
+                    }
+                }
+
+            }).Start();
         }
         //Stop listening
         public void Stop()
@@ -70,7 +92,7 @@ namespace QServer.Network
             }
             catch(Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Eutils.WriteLine(ex.Message);
             }
         }
         //Socket accepted event!

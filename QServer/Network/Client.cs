@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 /* Author: Eddy Meivogel
  * Website: www.eddymeivogel.com
  */
@@ -12,12 +13,13 @@ namespace QServer.Network
 {
     class Client
     {
+        private const int DATA_LENGTH = 512;
+
         public string ID;//client ID
         public IPEndPoint ipEndpoint;//Clients IP
         public bool isLoggedIn;//IS the client logged in?
         public string userName;//The username
-        Socket sSocket;//Da socket
-
+        private Socket sSocket;//Da socket
         public Client(Socket acceptedSocket)
         {
             sSocket = acceptedSocket;//The clients socked is ofcourse the one that got accepted.
@@ -26,20 +28,67 @@ namespace QServer.Network
             userName = "";//we don't know this.
             ipEndpoint = (IPEndPoint)sSocket.RemoteEndPoint;// The IP
 
-            //the socket can start recieving. in a asynchronous way.
-            //recieveCallback is the function!
-            sSocket.BeginReceive(new byte[] { 0 }, 0, 0, 0, recieveCallback, null);
+            //the socket can start receiving. in a asynchronous way.
+            //receiveCallback is the function!
+            //sSocket.BeginReceive(new byte[] { 0 }, 0, 0, 0, receiveCallback, null);
+
+            StartReceive();
         }
-        //The Data we get!
-        void recieveCallback(IAsyncResult ar)
+        private void StartReceive()
+        {
+            new Thread(delegate()
+            {
+                byte[] buffer = new byte[DATA_LENGTH];
+                while (true)
+                {
+                    try
+                    {
+                        int length = sSocket.Receive(buffer, buffer.Length,SocketFlags.None);
+                        if (length <= 0)
+                        {
+                            //Close();
+                            //break;
+                            continue;
+                        }
+                        if (length < buffer.Length)
+                        {
+                            Array.Resize<byte>(ref buffer, length);
+                        }
+                        OnReceive(buffer);
+                    }
+                    catch(Exception e)
+                    {
+                        Eutils.WriteLine(e.Message);
+                        break;
+                    }
+                }
+            }).Start();
+        }
+        private void OnReceive(byte[] buffer)
+        {
+            //Then we send this.
+            string packetString = Encoding.Default.GetString(buffer);//The packet
+            //packetString = packetString.Trim('\0');
+            Eutils.WriteLine("received data:{0} at Time:{1} Length:{2}", packetString, DateTime.Now, packetString.Length);
+            packetString = QEncryption.Decrypt(packetString);
+            Eutils.WriteLine("received data:{0} at Time:{1} Length:{2}", packetString, DateTime.Now, packetString.Length);
+            //Split the packet by our split character.
+            string[] packetStrings = packetString.Split(new string[] { PacketDatas.PACKET_SPLIT }, StringSplitOptions.None);
+            if (packetStrings[0] != PacketDatas.PACKET_HEADER)//Is the packet header correct?
+            {
+                Close();
+                return;
+            }
+            received(this, packetStrings);
+        }
+
+        void ReceiveCallback(IAsyncResult ar)
         {
             try
             {
-                sSocket.EndReceive(ar);//Lets end recieving. 
+                sSocket.EndReceive(ar);//Lets end receiving. 
                 byte[] buffer = new byte[1024];//the buffer. only 1024 bytes long? That is not much.
-                int recCount = sSocket.Receive(buffer, buffer.Length, 0);//The amount of recieved bytes.
-
-                //recCount = recCount - 2;//A test client added 2 bytes....
+                int recCount = sSocket.Receive(buffer, buffer.Length, 0);//The amount of received bytes.
                 if (recCount <= 0)
                 {
                     //if we get nothing then why? DC!
@@ -51,30 +100,56 @@ namespace QServer.Network
                 {
                     Array.Resize<byte>(ref buffer, recCount);
                 }
-                //Is there someone listening to our recieved event?
-                if (recieved != null)
+                //Is there someone listening to our received event?
+                if (received != null)
                 {
-                    //Then we send this.
-                    recieved(this, buffer);
+                    OnReceive(buffer);
                 }
                 //Start receiving again.
                 //Hey! its a loop.
-                sSocket.BeginReceive(new byte[] { 0 }, 0, 0, 0, recieveCallback, null);
+                sSocket.BeginReceive(new byte[] { 0 }, 0, 0, 0, ReceiveCallback, null);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                Console.WriteLine("Error Recieving:{0} StackTrace:{1} ",ex.Message,ex.StackTrace);
+                Eutils.WriteLine("Error receiving:{0} StackTrace:{1} ", ex.Message, ex.StackTrace);
                 Close();
             }
         }
         //the string data we are going to send.
+        public void SendWEncrypt(string encryptedData)
+        {
+            if (sSocket == null || !sSocket.Connected)
+                return;
+
+            //We us UTF8 characterss so lets convert the bytes into utf8 string!
+            byte[] dataBytes = Encoding.UTF8.GetBytes(encryptedData);
+            //And then send it to our client.
+            try
+            {
+                sSocket.Send(dataBytes, SocketFlags.None);
+            }
+            catch (Exception e)
+            {
+                Eutils.WriteLine(e.Message);
+            }
+        }
         public void Send(string dataToSend)
         {
-            //We us UTF8 characterss so lets convert the bytes into utf8 string!
+            if (sSocket == null || !sSocket.Connected)
+                return;
+
             dataToSend = QEncryption.Encrypt(dataToSend);
+            //We us UTF8 characterss so lets convert the bytes into utf8 string!
             byte[] dataBytes = Encoding.UTF8.GetBytes(dataToSend);
             //And then send it to our client.
-            sSocket.Send(dataBytes,SocketFlags.None);
+            try
+            {
+                sSocket.Send(dataBytes, SocketFlags.None);
+            }
+            catch(Exception e)
+            {
+                Eutils.WriteLine(e.Message);
+            }
         }
         //Lets clossssssssse
         public void Close()
@@ -89,14 +164,15 @@ namespace QServer.Network
                     //If so we send this to our listener!
                     disconnected(this);
                 }
+                sSocket = null;
             }
         }
-        //Client recieve event function. We need to know who and what data we get!
-        public delegate void ClientRecievedHandler(Client sender,byte[] data);
+        //Client receive event function. We need to know who and what data we get!
+        public delegate void ClientReceivedHandler(Client sender, string[] data);
         //Disconnect event function! we only need to know who dissconnected.
         public delegate void ClientDisconnectedHandler(Client sender);
         //Event to listen to.
-        public event ClientRecievedHandler recieved;
+        public event ClientReceivedHandler received;
         public event ClientDisconnectedHandler disconnected;
     }
 }

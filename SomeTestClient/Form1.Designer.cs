@@ -44,12 +44,13 @@
             this.roomListBox = new System.Windows.Forms.ListBox();
             this.startGameButton = new System.Windows.Forms.Button();
             this.stopGameButton = new System.Windows.Forms.Button();
+            this.spamButton = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // loginButton
             // 
             this.loginButton.Location = new System.Drawing.Point(205, 24);
-            this.loginButton.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.loginButton.Margin = new System.Windows.Forms.Padding(2);
             this.loginButton.Name = "loginButton";
             this.loginButton.Size = new System.Drawing.Size(56, 26);
             this.loginButton.TabIndex = 0;
@@ -70,7 +71,7 @@
             // userTextBox
             // 
             this.userTextBox.Location = new System.Drawing.Point(46, 24);
-            this.userTextBox.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.userTextBox.Margin = new System.Windows.Forms.Padding(2);
             this.userTextBox.Name = "userTextBox";
             this.userTextBox.Size = new System.Drawing.Size(76, 20);
             this.userTextBox.TabIndex = 2;
@@ -78,7 +79,7 @@
             // passTextBox
             // 
             this.passTextBox.Location = new System.Drawing.Point(125, 24);
-            this.passTextBox.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.passTextBox.Margin = new System.Windows.Forms.Padding(2);
             this.passTextBox.Name = "passTextBox";
             this.passTextBox.Size = new System.Drawing.Size(76, 20);
             this.passTextBox.TabIndex = 3;
@@ -86,7 +87,7 @@
             // chatRichTextBox
             // 
             this.chatRichTextBox.Location = new System.Drawing.Point(9, 111);
-            this.chatRichTextBox.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.chatRichTextBox.Margin = new System.Windows.Forms.Padding(2);
             this.chatRichTextBox.Name = "chatRichTextBox";
             this.chatRichTextBox.ReadOnly = true;
             this.chatRichTextBox.Size = new System.Drawing.Size(359, 200);
@@ -106,7 +107,7 @@
             // messageButton
             // 
             this.messageButton.Location = new System.Drawing.Point(310, 316);
-            this.messageButton.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.messageButton.Margin = new System.Windows.Forms.Padding(2);
             this.messageButton.Name = "messageButton";
             this.messageButton.Size = new System.Drawing.Size(56, 26);
             this.messageButton.TabIndex = 6;
@@ -119,7 +120,7 @@
             this.chatTextBox.AcceptsReturn = true;
             this.chatTextBox.AcceptsTab = true;
             this.chatTextBox.Location = new System.Drawing.Point(9, 320);
-            this.chatTextBox.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.chatTextBox.Margin = new System.Windows.Forms.Padding(2);
             this.chatTextBox.Name = "chatTextBox";
             this.chatTextBox.Size = new System.Drawing.Size(297, 20);
             this.chatTextBox.TabIndex = 7;
@@ -128,7 +129,7 @@
             // unusedPacketsRichTextBox
             // 
             this.unusedPacketsRichTextBox.Location = new System.Drawing.Point(493, 111);
-            this.unusedPacketsRichTextBox.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.unusedPacketsRichTextBox.Margin = new System.Windows.Forms.Padding(2);
             this.unusedPacketsRichTextBox.Name = "unusedPacketsRichTextBox";
             this.unusedPacketsRichTextBox.ReadOnly = true;
             this.unusedPacketsRichTextBox.Size = new System.Drawing.Size(192, 200);
@@ -149,7 +150,7 @@
             // createButton
             // 
             this.createButton.Location = new System.Drawing.Point(205, 53);
-            this.createButton.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.createButton.Margin = new System.Windows.Forms.Padding(2);
             this.createButton.Name = "createButton";
             this.createButton.Size = new System.Drawing.Size(56, 26);
             this.createButton.TabIndex = 10;
@@ -160,7 +161,7 @@
             // roomTextBox
             // 
             this.roomTextBox.Location = new System.Drawing.Point(75, 57);
-            this.roomTextBox.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.roomTextBox.Margin = new System.Windows.Forms.Padding(2);
             this.roomTextBox.Name = "roomTextBox";
             this.roomTextBox.Size = new System.Drawing.Size(126, 20);
             this.roomTextBox.TabIndex = 12;
@@ -179,7 +180,7 @@
             // 
             this.roomListBox.FormattingEnabled = true;
             this.roomListBox.Location = new System.Drawing.Point(266, 24);
-            this.roomListBox.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.roomListBox.Margin = new System.Windows.Forms.Padding(2);
             this.roomListBox.Name = "roomListBox";
             this.roomListBox.Size = new System.Drawing.Size(91, 69);
             this.roomListBox.TabIndex = 13;
@@ -205,11 +206,22 @@
             this.stopGameButton.UseVisualStyleBackColor = true;
             this.stopGameButton.Click += new System.EventHandler(this.stopGameButton_Click);
             // 
+            // spamButton
+            // 
+            this.spamButton.Location = new System.Drawing.Point(362, 22);
+            this.spamButton.Name = "spamButton";
+            this.spamButton.Size = new System.Drawing.Size(93, 23);
+            this.spamButton.TabIndex = 16;
+            this.spamButton.Text = "Login Spam";
+            this.spamButton.UseVisualStyleBackColor = true;
+            this.spamButton.Click += new System.EventHandler(this.spamButton_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(693, 344);
+            this.Controls.Add(this.spamButton);
             this.Controls.Add(this.stopGameButton);
             this.Controls.Add(this.startGameButton);
             this.Controls.Add(this.roomListBox);
@@ -226,7 +238,7 @@
             this.Controls.Add(this.userTextBox);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.loginButton);
-            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "Form1";
             this.Text = "Master server test client";
             this.ResumeLayout(false);
@@ -252,6 +264,7 @@
         private System.Windows.Forms.ListBox roomListBox;
         private System.Windows.Forms.Button startGameButton;
         private System.Windows.Forms.Button stopGameButton;
+        private System.Windows.Forms.Button spamButton;
     }
 }
 
