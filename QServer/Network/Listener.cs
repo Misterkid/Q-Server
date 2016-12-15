@@ -24,6 +24,7 @@ namespace QServer.Network
             nPort = lPort;//Port is the port we got.
             //Lets create our socket
             sSocket = new Socket(AddressFamily.InterNetwork,SocketType.Stream,ProtocolType.Tcp);
+            sSocket.NoDelay = true;
 
         }
 
@@ -39,10 +40,10 @@ namespace QServer.Network
             sSocket.Listen(0);
             //asynchronous accepting clients.
             StartListening();
-           // sSocket.BeginAccept(beginAcceptCallback,null);
+            //sSocket.BeginAccept(beginAcceptCallback,null);
             bListening = true;//We are ready and listening.
 
-            Eutils.WriteLine("Server is Listening on port {0}", nPort);
+            Eutils.WriteLine("Server is Listening on port {0}", Eutils.MESSSAGE_TYPE.NORMAL, nPort);
         }
         private void StartListening()
         {
@@ -58,6 +59,7 @@ namespace QServer.Network
                     }
                     catch (Exception e)
                     {
+                        Eutils.WriteLine("Error Accepting! Message:{0}", Eutils.MESSSAGE_TYPE.ERROR, e.Message, e.StackTrace);
                         continue;
                     }
                 }
@@ -90,9 +92,9 @@ namespace QServer.Network
                 //A loop!
                 sSocket.BeginAccept(beginAcceptCallback, null);
             }
-            catch(Exception ex)
+            catch(Exception e)
             {
-                Eutils.WriteLine(ex.Message);
+                Eutils.WriteLine("Error accepting! Message:{0}", Eutils.MESSSAGE_TYPE.ERROR, e.Message, e.StackTrace);
             }
         }
         //Socket accepted event!

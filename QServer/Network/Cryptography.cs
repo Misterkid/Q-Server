@@ -15,7 +15,7 @@ namespace QServer.Network
         private static int _iterations = 256;
         private static int _keySize = 256;
 
-        private static string _hash = "SHA1";
+        private static string _hash = "SHA256";
         private static string _salt = "1234567890123456"; // Random
         private static string _vector = "qwertyuiopasdfgh"; // Random
 

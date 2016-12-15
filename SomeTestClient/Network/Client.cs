@@ -16,9 +16,17 @@ namespace SomeTestClient.Network
         private Socket socket;
         public void InitSocket(string ipAddr,int port)
         {
-            socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            socket.Connect(ipAddr, port);
-            socket.BeginReceive(new byte[] { 0 }, 0, 0, 0, receiveCallback, null);
+            try
+            {
+                socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                socket.Connect(ipAddr, port);
+                socket.BeginReceive(new byte[] { 0 }, 0, 0, 0, receiveCallback, null);
+                socket.NoDelay = true;
+            }
+            catch(Exception e)
+            {
+                
+            }
         }
         private void receiveCallback(IAsyncResult ar)
         {
@@ -40,6 +48,8 @@ namespace SomeTestClient.Network
                 }
                 if (receive != null)
                 {
+                    OnReceive(buffer);
+                    /*
                     string packetString = Encoding.Default.GetString(buffer);
                     packetString = QEncryption.Decrypt(packetString);
                     Console.WriteLine("received data:{0} at Time:{1} Length:{2}", packetString, DateTime.Now, packetString.Length);
@@ -49,7 +59,7 @@ namespace SomeTestClient.Network
                         Close();
                         return;
                     }
-                    receive(this, packetStrings);
+                    receive(this, packetStrings);*/
                 }
                 socket.BeginReceive(new byte[] { 0 }, 0, 0, 0, receiveCallback, null);
             }
@@ -59,11 +69,77 @@ namespace SomeTestClient.Network
                 Close();
             }
         }
+        private void OnReceive(byte[] buffer)
+        {
+            //Then we send this.
+
+            string packetString = Encoding.Default.GetString(buffer);
+            if (packetString[0].ToString() != PacketDatas.PACKET_HEADER)
+            {
+                Close();
+                return;
+            }
+            string[] packets = packetString.Split(new string[] { PacketDatas.PACKET_HEADER }, StringSplitOptions.None);
+            for (int i = 1; i < packets.Length; i++)
+            {
+                packets[i] = QEncryption.Decrypt(packets[i]);
+                //Split the packet by our split character.
+                string[] packetStrings = packets[i].Split(new string[] { PacketDatas.PACKET_SPLIT }, StringSplitOptions.None);
+                receive(this, packetStrings);
+            }
+            /*
+            
+            string packetString = Encoding.Default.GetString(buffer);//The packet
+            //packetString = packetString.Trim('\0');
+            Eutils.WriteLine("received data:{0} at Time:{1} Length:{2}", packetString, DateTime.Now, packetString.Length);
+            packetString = QEncryption.Decrypt(packetString);
+            Eutils.WriteLine("received data:{0} at Time:{1} Length:{2}", packetString, DateTime.Now, packetString.Length);
+            //Split the packet by our split character.
+            string[] packetStrings = packetString.Split(new string[] { PacketDatas.PACKET_SPLIT }, StringSplitOptions.None);
+            if (packetStrings[0] != PacketDatas.PACKET_HEADER)//Is the packet header correct?
+            {
+                Close();
+                return;
+            }
+            received(this, packetStrings);*/
+
+        }
+        public void SendWEncrypt(string encryptedData)
+        {
+            if (socket == null || !socket.Connected)
+                return;
+
+            //We us UTF8 characterss so lets convert the bytes into utf8 string!
+            encryptedData = PacketDatas.PACKET_HEADER + encryptedData;
+            byte[] dataBytes = Encoding.UTF8.GetBytes(encryptedData);
+            //And then send it to our client.
+            try
+            {
+                socket.Send(dataBytes, SocketFlags.None);
+            }
+            catch (Exception e)
+            {
+                Close();
+            }
+        }
         public void Send(string dataToSend)
         {
+            if (socket == null || !socket.Connected)
+                return;
+
             dataToSend = QEncryption.Encrypt(dataToSend);
+            dataToSend = PacketDatas.PACKET_HEADER + dataToSend;
+            //We us UTF8 characterss so lets convert the bytes into utf8 string!
             byte[] dataBytes = Encoding.UTF8.GetBytes(dataToSend);
-            socket.Send(dataBytes, SocketFlags.None);
+            //And then send it to our client.
+            try
+            {
+                socket.Send(dataBytes, SocketFlags.None);
+            }
+            catch (Exception e)
+            {
+                Close();
+            }
         }
         public void Close()
         {

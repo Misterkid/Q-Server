@@ -9,12 +9,13 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 
 using QServer.Network;
+using QServer.Servers;
 
 namespace QServer
 {
     public partial class Main : Form
     {
-        private DataControl dataControl;//Data control. Here is where the network crap happends
+        private MainServer dataControl;//Data control. Here is where the network crap happends
         public Main()
         {
             InitializeComponent();
@@ -22,10 +23,10 @@ namespace QServer
         }
         void Main_Load(object sender, EventArgs e)
         {
-            dataControl = new DataControl();//Now we can assign this.
+            dataControl = new MainServer();//Now we can assign this.
             //listen to the event whenever a user is logged in.
             //going to function count_Changed
-            dataControl.countChanged += new DataControl.CountChanged(count_Changed);
+            dataControl.countChanged += new MainServer.CountChanged(count_Changed);
         }
         void count_Changed(WinformsThings e)
         {
@@ -46,6 +47,16 @@ namespace QServer
         {
             dataControl.CloseAllSockets();
             //DC all socket connections.
+        }
+
+        private void sendPackageBtn_Click(object sender, EventArgs e)
+        {
+            dataControl.SendToAll(packageText.Text);
+        }
+
+        private void splitBtn_Click(object sender, EventArgs e)
+        {
+            packageText.Text += "\u0003";
         }
     }
 }

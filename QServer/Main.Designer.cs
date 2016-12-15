@@ -32,15 +32,18 @@
             this.exitBtn = new System.Windows.Forms.Button();
             this.creditsLabel = new System.Windows.Forms.Label();
             this.dcBtn = new System.Windows.Forms.Button();
+            this.sendPackageBtn = new System.Windows.Forms.Button();
+            this.packageText = new System.Windows.Forms.TextBox();
+            this.splitBtn = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // onlineCountLabel
             // 
             this.onlineCountLabel.AutoSize = true;
-            this.onlineCountLabel.Font = new System.Drawing.Font("Dotum", 35F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.onlineCountLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 35F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.onlineCountLabel.Location = new System.Drawing.Point(12, 9);
             this.onlineCountLabel.Name = "onlineCountLabel";
-            this.onlineCountLabel.Size = new System.Drawing.Size(193, 47);
+            this.onlineCountLabel.Size = new System.Drawing.Size(187, 54);
             this.onlineCountLabel.TabIndex = 0;
             this.onlineCountLabel.Text = "Count:0";
             // 
@@ -67,7 +70,7 @@
             // dcBtn
             // 
             this.dcBtn.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.dcBtn.Location = new System.Drawing.Point(506, 266);
+            this.dcBtn.Location = new System.Drawing.Point(587, 237);
             this.dcBtn.Name = "dcBtn";
             this.dcBtn.Size = new System.Drawing.Size(89, 23);
             this.dcBtn.TabIndex = 3;
@@ -75,12 +78,45 @@
             this.dcBtn.UseVisualStyleBackColor = true;
             this.dcBtn.Click += new System.EventHandler(this.dcBtn_Click);
             // 
+            // sendPackageBtn
+            // 
+            this.sendPackageBtn.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.sendPackageBtn.Location = new System.Drawing.Point(520, 266);
+            this.sendPackageBtn.Name = "sendPackageBtn";
+            this.sendPackageBtn.Size = new System.Drawing.Size(75, 23);
+            this.sendPackageBtn.TabIndex = 4;
+            this.sendPackageBtn.Text = "Send";
+            this.sendPackageBtn.UseVisualStyleBackColor = true;
+            this.sendPackageBtn.Click += new System.EventHandler(this.sendPackageBtn_Click);
+            // 
+            // packageText
+            // 
+            this.packageText.Location = new System.Drawing.Point(174, 268);
+            this.packageText.Name = "packageText";
+            this.packageText.Size = new System.Drawing.Size(340, 20);
+            this.packageText.TabIndex = 5;
+            // 
+            // splitBtn
+            // 
+            this.splitBtn.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.splitBtn.Location = new System.Drawing.Point(520, 237);
+            this.splitBtn.Name = "splitBtn";
+            this.splitBtn.Size = new System.Drawing.Size(61, 23);
+            this.splitBtn.TabIndex = 6;
+            this.splitBtn.Text = "Ins Split";
+            this.splitBtn.UseMnemonic = false;
+            this.splitBtn.UseVisualStyleBackColor = true;
+            this.splitBtn.Click += new System.EventHandler(this.splitBtn_Click);
+            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Black;
             this.ClientSize = new System.Drawing.Size(688, 302);
+            this.Controls.Add(this.splitBtn);
+            this.Controls.Add(this.packageText);
+            this.Controls.Add(this.sendPackageBtn);
             this.Controls.Add(this.dcBtn);
             this.Controls.Add(this.creditsLabel);
             this.Controls.Add(this.exitBtn);
@@ -100,5 +136,8 @@
         private System.Windows.Forms.Button exitBtn;
         private System.Windows.Forms.Label creditsLabel;
         private System.Windows.Forms.Button dcBtn;
+        private System.Windows.Forms.Button sendPackageBtn;
+        private System.Windows.Forms.TextBox packageText;
+        private System.Windows.Forms.Button splitBtn;
     }
 }

@@ -45,11 +45,15 @@
             this.startGameButton = new System.Windows.Forms.Button();
             this.stopGameButton = new System.Windows.Forms.Button();
             this.spamButton = new System.Windows.Forms.Button();
+            this.ipTextBox = new System.Windows.Forms.TextBox();
+            this.memePictureBox1 = new System.Windows.Forms.PictureBox();
+            this.sendMemeBtn = new System.Windows.Forms.Button();
+            ((System.ComponentModel.ISupportInitialize)(this.memePictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
             // loginButton
             // 
-            this.loginButton.Location = new System.Drawing.Point(205, 24);
+            this.loginButton.Location = new System.Drawing.Point(312, 22);
             this.loginButton.Margin = new System.Windows.Forms.Padding(2);
             this.loginButton.Name = "loginButton";
             this.loginButton.Size = new System.Drawing.Size(56, 26);
@@ -61,7 +65,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(9, 24);
+            this.label1.Location = new System.Drawing.Point(114, 27);
             this.label1.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(33, 13);
@@ -70,7 +74,7 @@
             // 
             // userTextBox
             // 
-            this.userTextBox.Location = new System.Drawing.Point(46, 24);
+            this.userTextBox.Location = new System.Drawing.Point(152, 24);
             this.userTextBox.Margin = new System.Windows.Forms.Padding(2);
             this.userTextBox.Name = "userTextBox";
             this.userTextBox.Size = new System.Drawing.Size(76, 20);
@@ -78,7 +82,7 @@
             // 
             // passTextBox
             // 
-            this.passTextBox.Location = new System.Drawing.Point(125, 24);
+            this.passTextBox.Location = new System.Drawing.Point(232, 24);
             this.passTextBox.Margin = new System.Windows.Forms.Padding(2);
             this.passTextBox.Name = "passTextBox";
             this.passTextBox.Size = new System.Drawing.Size(76, 20);
@@ -128,7 +132,7 @@
             // 
             // unusedPacketsRichTextBox
             // 
-            this.unusedPacketsRichTextBox.Location = new System.Drawing.Point(493, 111);
+            this.unusedPacketsRichTextBox.Location = new System.Drawing.Point(715, 111);
             this.unusedPacketsRichTextBox.Margin = new System.Windows.Forms.Padding(2);
             this.unusedPacketsRichTextBox.Name = "unusedPacketsRichTextBox";
             this.unusedPacketsRichTextBox.ReadOnly = true;
@@ -140,7 +144,7 @@
             // 
             this.label2.AutoSize = true;
             this.label2.ForeColor = System.Drawing.Color.Red;
-            this.label2.Location = new System.Drawing.Point(490, 95);
+            this.label2.Location = new System.Drawing.Point(712, 96);
             this.label2.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(101, 13);
@@ -169,7 +173,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(9, 59);
+            this.label3.Location = new System.Drawing.Point(9, 60);
             this.label3.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(66, 13);
@@ -179,16 +183,16 @@
             // roomListBox
             // 
             this.roomListBox.FormattingEnabled = true;
-            this.roomListBox.Location = new System.Drawing.Point(266, 24);
+            this.roomListBox.Location = new System.Drawing.Point(373, 11);
             this.roomListBox.Margin = new System.Windows.Forms.Padding(2);
             this.roomListBox.Name = "roomListBox";
-            this.roomListBox.Size = new System.Drawing.Size(91, 69);
+            this.roomListBox.Size = new System.Drawing.Size(117, 95);
             this.roomListBox.TabIndex = 13;
             this.roomListBox.SelectedIndexChanged += new System.EventHandler(this.roomListBox_SelectedIndexChanged);
             // 
             // startGameButton
             // 
-            this.startGameButton.Location = new System.Drawing.Point(493, 316);
+            this.startGameButton.Location = new System.Drawing.Point(371, 315);
             this.startGameButton.Name = "startGameButton";
             this.startGameButton.Size = new System.Drawing.Size(75, 23);
             this.startGameButton.TabIndex = 14;
@@ -198,7 +202,7 @@
             // 
             // stopGameButton
             // 
-            this.stopGameButton.Location = new System.Drawing.Point(610, 317);
+            this.stopGameButton.Location = new System.Drawing.Point(452, 315);
             this.stopGameButton.Name = "stopGameButton";
             this.stopGameButton.Size = new System.Drawing.Size(75, 23);
             this.stopGameButton.TabIndex = 15;
@@ -208,7 +212,7 @@
             // 
             // spamButton
             // 
-            this.spamButton.Location = new System.Drawing.Point(362, 22);
+            this.spamButton.Location = new System.Drawing.Point(275, 60);
             this.spamButton.Name = "spamButton";
             this.spamButton.Size = new System.Drawing.Size(93, 23);
             this.spamButton.TabIndex = 16;
@@ -216,11 +220,41 @@
             this.spamButton.UseVisualStyleBackColor = true;
             this.spamButton.Click += new System.EventHandler(this.spamButton_Click);
             // 
+            // ipTextBox
+            // 
+            this.ipTextBox.Location = new System.Drawing.Point(9, 26);
+            this.ipTextBox.Name = "ipTextBox";
+            this.ipTextBox.Size = new System.Drawing.Size(100, 20);
+            this.ipTextBox.TabIndex = 18;
+            this.ipTextBox.Text = "127.0.0.1";
+            // 
+            // memePictureBox1
+            // 
+            this.memePictureBox1.BackColor = System.Drawing.SystemColors.ControlDark;
+            this.memePictureBox1.Location = new System.Drawing.Point(374, 112);
+            this.memePictureBox1.Name = "memePictureBox1";
+            this.memePictureBox1.Size = new System.Drawing.Size(336, 197);
+            this.memePictureBox1.TabIndex = 19;
+            this.memePictureBox1.TabStop = false;
+            // 
+            // sendMemeBtn
+            // 
+            this.sendMemeBtn.Location = new System.Drawing.Point(533, 315);
+            this.sendMemeBtn.Name = "sendMemeBtn";
+            this.sendMemeBtn.Size = new System.Drawing.Size(75, 23);
+            this.sendMemeBtn.TabIndex = 21;
+            this.sendMemeBtn.Text = "Send Meme";
+            this.sendMemeBtn.UseVisualStyleBackColor = true;
+            this.sendMemeBtn.Click += new System.EventHandler(this.sendMemeBtn_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(693, 344);
+            this.ClientSize = new System.Drawing.Size(918, 357);
+            this.Controls.Add(this.sendMemeBtn);
+            this.Controls.Add(this.memePictureBox1);
+            this.Controls.Add(this.ipTextBox);
             this.Controls.Add(this.spamButton);
             this.Controls.Add(this.stopGameButton);
             this.Controls.Add(this.startGameButton);
@@ -241,6 +275,8 @@
             this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "Form1";
             this.Text = "Master server test client";
+            this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.OnMouseMove);
+            ((System.ComponentModel.ISupportInitialize)(this.memePictureBox1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -265,6 +301,9 @@
         private System.Windows.Forms.Button startGameButton;
         private System.Windows.Forms.Button stopGameButton;
         private System.Windows.Forms.Button spamButton;
+        private System.Windows.Forms.TextBox ipTextBox;
+        private System.Windows.Forms.PictureBox memePictureBox1;
+        private System.Windows.Forms.Button sendMemeBtn;
     }
 }
 
