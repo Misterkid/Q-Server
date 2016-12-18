@@ -16,6 +16,8 @@ namespace SomeTestClient
     {
         private bool isLoggedIn = false;
         private Client client;
+        private List<byte> imageBytes = new List<byte>();
+        private bool isGettingImage = false;
         public Form1()
         {
             InitializeComponent();
@@ -107,7 +109,15 @@ namespace SomeTestClient
                         }
                     }
                     break;
+
+                case PacketDatas.PACKET_GAME_IMAGE_START:
+                    StartImageGet(packetStrings[1]);
+                    break;
                 case PacketDatas.PACKET_GAME_IMAGE:
+                    //PutMemeInBox(packetStrings[1]);
+                    ImageGet(packetStrings[1]);
+                    break;
+                case PacketDatas.PACKET_GAME_IMAGE_END:
                     PutMemeInBox(packetStrings[1]);
                     break;
                 case PacketDatas.PACKET_GAME_POS:
@@ -132,17 +142,45 @@ namespace SomeTestClient
                     break;
             }
         }
+        private void StartImageGet(string packet)
+        {
+            if (!isGettingImage)
+            {
+                isGettingImage = true;
+            }
+        }
+        private void ImageGet(string packet)
+        {
+            if (isGettingImage)
+            {
+                String[] bytesString = packet.Split(' ');
+                //byte[] bytes = new byte[bytesString.Length];
 
+                for (int i = 0; i < bytesString.Length; ++i)
+                {
+                    imageBytes.Add(Byte.Parse(bytesString[i]));
+                    //bytes[i] = Byte.Parse(bytesString[i]);//Byte.ParseByte(bytesString[i]);
+                }
+            }
+        }
         private void PutMemeInBox(string packet)
         {
-            String[] bytesString = packet.Split(' ');
-            byte[] bytes = new byte[bytesString.Length];
-            for (int i = 0; i < bytes.Length; ++i)
-            {
-                bytes[i] = Byte.Parse(bytesString[i]);//Byte.ParseByte(bytesString[i]);
-            }
 
-            memePictureBox1.Image = GetImageFromByteArray(bytes);
+
+            //String[] bytesString = packet.Split(' ');
+            //byte[] bytes = new byte[bytesString.Length];
+            /*
+            for (int i = 0; i < bytesString.Length; ++i)
+            {
+                imageBytes.Add(Byte.Parse(bytesString[i]));
+                //bytes[i] = Byte.Parse(bytesString[i]);//Byte.ParseByte(bytesString[i]);
+            }*/
+            if (isGettingImage)
+            {
+                memePictureBox1.Image = GetImageFromByteArray(imageBytes.ToArray());
+                imageBytes.Clear();
+                isGettingImage = false;
+            }
             //throw new NotImplementedException();
         }
         private void HandleError(string errorText)
@@ -233,12 +271,14 @@ namespace SomeTestClient
                 byte[] imgdata = System.IO.File.ReadAllBytes(dialog.FileName);
                 string imgString = "";
                 int length = imgdata.Length;
+                client.Send(PacketDatas.PACKET_GAME_IMAGE_START);
                 for (int i = 0; i < imgdata.Length; i ++ )
                 {
-                    imgString += imgdata[i] + " ";
+                    //imgString += imgdata[i] + " ";
+                    client.Send(PacketDatas.PACKET_GAME_IMAGE + PacketDatas.PACKET_SPLIT + imgdata[i]);
                 }
-                length = imgString.Length;
-                client.Send(PacketDatas.PACKET_GAME_IMAGE + PacketDatas.PACKET_SPLIT + imgString);
+                //length = imgString.Length;
+                client.Send(PacketDatas.PACKET_GAME_IMAGE_END);
             }
         }
         public Bitmap GetImageFromByteArray(byte[] byteArray)
@@ -262,7 +302,7 @@ namespace SomeTestClient
         {
             try
             {
-                client.Send(PacketDatas.PACKET_GAME_POS + PacketDatas.PACKET_SPLIT + e.X);
+               // client.Send(PacketDatas.PACKET_GAME_POS + PacketDatas.PACKET_SPLIT + e.X);
             }
             catch(Exception ex)
             {

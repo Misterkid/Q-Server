@@ -189,18 +189,19 @@ namespace QServer.Network
         {
             if (isClosed)
             {
-                Eutils.WriteLine("Error socket is already closed:{0}", Eutils.MESSSAGE_TYPE.ERROR, ID);
-                //return;
+                //Eutils.WriteLine("Error socket is already closed:{0}", Eutils.MESSSAGE_TYPE.ERROR, ID);
+                return;
+            }
+            ClientDisconnectedHandler disEvent = disconnected;
+            if (disEvent != null)
+            {
+                disEvent(this);
             }
             if (socket != null)
             {
-               // sSocket.Shutdown(SocketShutdown.Both);
                 socket.Close();//Close!
             }
-            if (disconnected != null)//is someone listening to our DC event?
-            {
-                disconnected(this);
-            }
+
             isClosed = true;
         }
         //Client receive event function. We need to know who and what data we get!

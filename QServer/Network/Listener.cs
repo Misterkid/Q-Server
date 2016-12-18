@@ -39,8 +39,8 @@ namespace QServer.Network
             //Now we are going to listen.
             sSocket.Listen(0);
             //asynchronous accepting clients.
-            StartListening();
-            //sSocket.BeginAccept(beginAcceptCallback,null);
+          //  StartListening();
+            sSocket.BeginAccept(beginAcceptCallback,null);
             bListening = true;//We are ready and listening.
 
             Eutils.WriteLine("Server is Listening on port {0}", Eutils.MESSSAGE_TYPE.NORMAL, nPort);

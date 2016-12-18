@@ -43,6 +43,7 @@ namespace QServer.Servers
         private WinformsThings winformsThings;//well just what it say's 
         private Login login;
         private int maxCount = 10000;
+        private int disCount = 0;
         public MainServer():base()
         {
             //Init!
@@ -53,14 +54,18 @@ namespace QServer.Servers
             listener.socketAccepted += new Listener.SocketAcceptedHandler(listener_SocketAccepted);
             //Start listening.
             listener.Start();
-            
+            /*
             System.Timers.Timer sweepTimer = new System.Timers.Timer(5000);
             sweepTimer.AutoReset = true;
             sweepTimer.Elapsed += sweepTimer_Elapsed;
-            sweepTimer.Start();
+            sweepTimer.Start();*/
         }
 
         private void sweepTimer_Elapsed(object sender, ElapsedEventArgs e)
+        {
+            Sweep();
+        }
+        private void Sweep()
         {
             for (int i = 0; i < clients.Count; i++)
             {
@@ -69,7 +74,7 @@ namespace QServer.Servers
                     clients.RemoveAt(i);
                     i--;
                 }
-                else if(clients[i].isClosed)
+                else if (clients[i].isClosed)
                 {
                     clients.RemoveAt(i);
                     i--;
@@ -80,7 +85,7 @@ namespace QServer.Servers
         }
         private void UpdateStats()
         {
-            winformsThings.counter = "Count:" + clients.Count;
+            winformsThings.counter = "Count:" + clients.Count + ":" + disCount;
             if (countChanged != null)//if it doesn't excist we won't edit the counter
             {
                 countChanged(winformsThings);///Edit the counter.
@@ -88,9 +93,11 @@ namespace QServer.Servers
         }
         protected override void visitor_disconnected(Client sender)
         {
+            disCount++;
             base.visitor_disconnected(sender);
             Eutils.WriteLine("Client Disconnected: {0}", Eutils.MESSSAGE_TYPE.NORMAL, sender.ID);
             UpdateStats();
+            Sweep();
         }
         //A client got connected! Aka socket accepted!
         private void listener_SocketAccepted(Socket e)
@@ -127,7 +134,9 @@ namespace QServer.Servers
             dcAllPackage = QEncryption.Encrypt(dcAllPackage);
             while(clients.Count != 0)
             {
-                if (clients[0] == null)
+                //clients[0].Close();
+                
+                if (clients[0] == null || clients[0].isClosed)
                 {
                     clients.RemoveAt(0);
                 }

@@ -10,6 +10,8 @@ namespace QServer.Servers
     class Game:Server
     {
         private GameRoom gameRoom;
+        private bool isSendingImage = false;
+        private List<Client> clientToRecImage;
         public Game(GameRoom gameRoom):base()
         {
             this.gameRoom = gameRoom;
@@ -29,13 +31,13 @@ namespace QServer.Servers
                     break;
 
                 case PacketDatas.PACKET_GAME_IMAGE_START:
-
+                    DoSendImageStart(sender, packetStrings);
                     break;
                 case PacketDatas.PACKET_GAME_IMAGE:
                     DoSendImage(sender, packetStrings);
                     break;
                 case PacketDatas.PACKET_GAME_IMAGE_END:
-                    DoSendImage(sender, packetStrings);
+                    DoSendImageEnd(sender, packetStrings);
                     break;
                 default:
                     Eutils.WriteLine("[Gameroom InGame {1}] Error wrong packet! {0}",Eutils.MESSSAGE_TYPE.ERROR, packetStrings[1], gameRoom.gameRoomName);
@@ -43,8 +45,34 @@ namespace QServer.Servers
             }
         }
 
+        private void DoSendImageEnd(Client sender, string[] packetStrings)
+        {
+            //throw new NotImplementedException();
+            if (isSendingImage)
+            {
+                clientToRecImage = null;
+                isSendingImage = false;
+            }
+        }
+
+        private void DoSendImageStart(Client sender, string[] packetStrings)
+        {
+            if (!isSendingImage)
+            {
+                clientToRecImage = clients;
+                isSendingImage = true;
+            }
+        }
+
         private void DoSendImage(Client sender, string[] packetStrings)
         {
+            /*if (isSendingImage)
+            {
+                for (int i = 0; i < clientToRecImage.Count; i++)
+                {
+                    clientToRecImage[i].Send(packetStrings[1]);
+                }
+            }*/
             SendToAll(packetStrings[1]);
         }
 

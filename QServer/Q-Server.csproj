@@ -84,6 +84,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Eutils.cs" />
+    <Compile Include="QList.cs" />
     <Compile Include="Servers\Game.cs" />
     <Compile Include="Servers\GameRoom.cs" />
     <Compile Include="Servers\Lobby.cs" />
